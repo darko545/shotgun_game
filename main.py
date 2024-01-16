@@ -36,7 +36,7 @@ class ItemEffects:
 class Shotgun:
     current_holder = None
     current_opponent = None
-    dmg = 1
+    dmg = 2
     slugs = []
 
     def __init__(self, player1, player2, holder=None, opponent=None):
