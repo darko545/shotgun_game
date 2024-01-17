@@ -1,7 +1,7 @@
 import asyncio
 
 import discord
-from discord.ext import commands
+from discord_token import TOKEN
 
 lock = asyncio.Lock()
 
@@ -9,7 +9,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.moderation = True
 game_channels = []
-token = ''
 
 def get_everyone_role(server_roles):
     for role in server_roles:
@@ -39,6 +38,7 @@ class GameChannel:
             everyone_role = get_everyone_role(channel.guild.roles)
             await channel.set_permissions(everyone_role, overwrite=overwrite_everybody)
             await channel.set_permissions(client.user, send_messages=True, add_reactions=True)
+            await channel.purge()
 
     async def start_game_channel(self, player1):
         def check(reaction, user):
@@ -83,6 +83,8 @@ class GameChannel:
                 if str(reaction.emoji) == '❌' and player1 == player2:
                     await channel.purge()
                     stop_inner_loop = True
+                    stop_outer_loop = True
+                    await self.init_game_channel()
                     continue
                 if str(reaction.emoji) == '👍':
                     if player1 == player2:
@@ -126,15 +128,7 @@ class ShotgunGameBot(discord.Client):
                         loop = asyncio.get_event_loop()
                         loop.create_task(game_channel.start_game_channel(message.author))
                         return
-            await channel.send(f'No available channels, sorry!')
+            await channel.send('No available channels, sorry ' + message.author.mention + '!', delete_after=10)
 
 client = ShotgunGameBot(intents=intents)
-client.run(token)
-
-bot = commands.Bot(command_prefix='!')
-@bot.command()
-async def shotgun(ctx):
-    print(ctx)
-    
-
-bot.run(token)
+client.run(TOKEN)
