@@ -1,32 +1,38 @@
 import random
 import time
 
+from constants import b_slugs
+
+
 def cause_effect(user, target, itemNumber, shotgun):
-    if itemNumber == 1:
-        user.change_hp(1)
-    if itemNumber == 2:
-        if shotgun.dmg == 1:
-            shotgun.increase_dmg()
-            return True
-        else:
+    match itemNumber:
+        case 1:  # cigarrette
+            user.change_hp(1)
+        case 2:  # axe
+            if shotgun.dmg == 1:
+                shotgun.increase_dmg()
+                return True
+            else:
+                return False
+        case 3:  # beer
+            print()
+            time.sleep(1)
+            print('You empty the chamber, the slug was: ', b_slugs[0] if not shotgun.unload_slug() else b_slugs[1])
+            time.sleep(4)
+            print()
+        case 4:  # lens
+            print()
+            time.sleep(1)
+            print('You check the chamber, the next slug is: ', b_slugs[0] if not shotgun.slugs[0] else b_slugs[1])
+            time.sleep(4)
+            print()
+        case 5:  # cuffs
+            if not target.handcuffed_this_round and not target.handcuffed:
+                target.handcuffed = True
+                return True
             return False
-    if itemNumber == 3:
-        print()
-        time.sleep(1)
-        print('You empty the chamber, the slug was: ', 'Fake' if not shotgun.unload_slug() else 'Live')
-        time.sleep(1)
-        print()
-    if itemNumber == 4:
-        print()
-        time.sleep(1)
-        print('You check the chamber, the next slug is: ', 'Fake' if not shotgun.slugs[0] else 'Live')
-        time.sleep(1)
-        print()
-    if itemNumber == 5:
-        if not target.handcuffed_this_round and not target.handcuffed:
-            target.handcuffed = True
-            return True
-        return False
+        case _:
+            return False
     return True
 
 def get_random_slugs(maxSlugs=8):
@@ -36,7 +42,10 @@ def get_random_slugs(maxSlugs=8):
         fake_slugs -= 1
     slugs = [1,] * live_slugs + [0,] * fake_slugs
     random.shuffle(slugs)
-    return slugs
+    return slugs[:8]
+
+def beautify_slugs(slugs):
+    return '  '.join(b_slugs.get(slug) for slug in slugs)
 
 class Shotgun:
     current_holder = None
