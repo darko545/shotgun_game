@@ -5,10 +5,6 @@ from constants import items_list
 from Player import Player
 from Shotgun import Shotgun, beautify_slugs, cause_effect, get_random_slugs
 
-player1 = Player(name='Darko')
-player2 = Player(name='Obi', hp=player1.hp)
-shotgun = Shotgun(player1, player2)
-
 def display_players_stats(player1, player2, shotgun):
     print(
         player1.name,
@@ -27,6 +23,54 @@ def display_players_stats(player1, player2, shotgun):
         ),
         player2.name,
     )
+    print(
+        '{}'.format(''.join('[{} ]'.format(b_item) for b_item in player1.get_beautiful_inv()[:4])),
+        '     ' * (4 - len(player1.inventory[:4])),
+        '     ' * (4 - len(player2.inventory[:4])),
+        '    ' * 5,
+        '{}'.format(''.join('[{} ]'.format(b_item) for b_item in player2.get_beautiful_inv()[:4])),
+    )
+    print(
+        '{}'.format(''.join('[{} ]'.format(b_item) for b_item in player1.get_beautiful_inv()[4:])),
+        '     ' * (4 - len(player1.inventory[4:])),
+        '     ' * (4 - len(player2.inventory[4:])),
+        '    ' * 5,
+        '{}'.format(''.join('[{} ]'.format(b_item) for b_item in player2.get_beautiful_inv()[4:])),
+    )
+
+def display_boom(boom):
+    print('\n\n')
+    for _ in range(1, 3):
+        time.sleep(0.5)
+        print('.', end='')
+        time.sleep(random.random())
+    if boom: print('BOOM!!!')
+    else: print('click')
+    print()
+    time.sleep(3)
+    print('\n\n')
+
+def display_inventory(shotgun):
+    print('\t 0  --  Go back')
+    for i in range(0, len(shotgun.current_holder.inventory)):
+        print('\t', i + 1, ' -- ', items_list[shotgun.current_holder.inventory[i]])
+    wat_item = input()
+    if int(wat_item) != 0:
+        inventory_item_index = int(wat_item) - 1
+        success = cause_effect(shotgun.current_holder, shotgun.current_opponent, shotgun.current_holder.inventory[inventory_item_index], shotgun)
+        if success:
+            shotgun.current_holder.inventory.pop(inventory_item_index)
+        else:
+            print()
+            print('You can\'t use that item right now!')
+            print()
+            time.sleep(2)
+
+
+player1 = Player(name='Darko')
+player2 = Player(name='Obi', hp=player1.hp)
+shotgun = Shotgun(player1, player2)
+
 while(player1.hp > 0 and player2.hp > 0):
     random_slugs = get_random_slugs()
     print('\n\n\n\n')
@@ -51,44 +95,11 @@ while(player1.hp > 0 and player2.hp > 0):
         boom = None
         match wat_do:
             case '1':
-                boom = shotgun.shoot_opponent()
-                print('\n\n')
-                for _ in range(1, 3):
-                    time.sleep(0.5)
-                    print('.', end='')
-                    time.sleep(random.random())
-                if boom: print('BOOM!!!')
-                else: print('click')
-                print()
-                time.sleep(3)
-                print('\n\n')
+                display_boom(shotgun.shoot_opponent())
             case '2':
-                boom = shotgun.shoot_self()
-                print('\n\n')
-                for _ in range(1, 3):
-                    time.sleep(0.5)
-                    print('.', end='')
-                    time.sleep(random.random())
-                if boom: print('BOOM!!!')
-                else: print('click')
-                print()
-                time.sleep(3)
-                print('\n\n')
+                display_boom(shotgun.shoot_self())
             case '3':
-                print('\t 0  --  Go back')
-                for i in range(0, len(shotgun.current_holder.inventory)):
-                    print('\t', i + 1, ' -- ', items_list[shotgun.current_holder.inventory[i]])
-                wat_item = input()
-                if int(wat_item) != 0:
-                    inventory_item_index = int(wat_item) - 1
-                    success = cause_effect(shotgun.current_holder, shotgun.current_opponent, shotgun.current_holder.inventory[inventory_item_index], shotgun)
-                    if success:
-                        shotgun.current_holder.inventory.pop(inventory_item_index)
-                    else:
-                        print()
-                        print('You can\'t use that item right now!')
-                        print()
-                        time.sleep(2)
+                display_inventory(shotgun)
             case _:
                 print('What the fuck are you doing?')
         print('\n'*50)

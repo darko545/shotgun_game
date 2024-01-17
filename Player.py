@@ -1,6 +1,6 @@
 import random
 
-from constants import items_list
+from constants import b_items, items_list
 
 def get_random_item():
     item_index = random.randint(1, len(items_list.items()))
@@ -27,6 +27,9 @@ class Player:
             self.inventory = []
         self.name = name
         self.max_hp = self.hp
+
+    def get_beautiful_inv(self):
+        return [b_items[item_number] for item_number in self.inventory]
 
     def get_stats(self):
         return {
