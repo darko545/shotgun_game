@@ -14,7 +14,7 @@ def display_players_stats(player1, player2, shotgun):
         ),
         ' '.join('❤️' for _ in range(player1.hp)),
         '\t\t',
-        '|{} |'.format('🪓' if shotgun.dmg == 2 else ' '),
+        '|{} |'.format('🪓' if shotgun.dmg == 2 else '  '),
         '\t\t',
         ' '.join('❤️' for _ in range(player2.hp)),
         '\t- {}{}'.format(
@@ -55,9 +55,14 @@ def display_inventory(shotgun):
     for i in range(0, len(shotgun.current_holder.inventory)):
         print('\t', i + 1, ' -- ', items_list[shotgun.current_holder.inventory[i]])
     wat_item = input()
-    if int(wat_item) != 0:
+    if int(wat_item) != 0 and int(wat_item) <= len(shotgun.current_holder.inventory):
         inventory_item_index = int(wat_item) - 1
-        success = cause_effect(shotgun.current_holder, shotgun.current_opponent, shotgun.current_holder.inventory[inventory_item_index], shotgun)
+        success, effect = cause_effect(
+            shotgun.current_holder,
+            shotgun.current_opponent,
+            shotgun.current_holder.inventory[inventory_item_index],
+            shotgun,
+        )
         if success:
             shotgun.current_holder.inventory.pop(inventory_item_index)
         else:
@@ -65,6 +70,10 @@ def display_inventory(shotgun):
             print('You can\'t use that item right now!')
             print()
             time.sleep(2)
+        if effect:
+            time.sleep(1)
+            print(effect)
+            time.sleep(4)
 
 
 player1 = Player(name='Darko')
