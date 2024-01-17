@@ -8,8 +8,11 @@ def get_random_item():
 
 class Player:
     name = None
+    hp = None
+    max_hp = None
     dead = False
     handcuffed = False
+    handcuffed_this_round = False
     inventory = []
 
     def __init__(self, name=None, hp=None, inventory=None):
@@ -23,6 +26,7 @@ class Player:
         else:
             self.inventory = []
         self.name = name
+        self.max_hp = self.hp
 
     def get_stats(self):
         return {
@@ -38,7 +42,7 @@ class Player:
         if self.dead:
             print('Already dead.')
             return
-        if self.hp == 4: return
+        if self.hp + diff > self.max_hp: return
         self.hp += diff
         if self.hp <= 0:
             self.die()

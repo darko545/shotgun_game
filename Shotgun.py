@@ -5,7 +5,11 @@ def cause_effect(user, target, itemNumber, shotgun):
     if itemNumber == 1:
         user.change_hp(1)
     if itemNumber == 2:
-        shotgun.increase_dmg()
+        if shotgun.dmg == 1:
+            shotgun.increase_dmg()
+            return True
+        else:
+            return False
     if itemNumber == 3:
         print()
         time.sleep(1)
@@ -13,14 +17,17 @@ def cause_effect(user, target, itemNumber, shotgun):
         time.sleep(1)
         print()
     if itemNumber == 4:
-        
         print()
         time.sleep(1)
         print('You check the chamber, the next slug is: ', 'Fake' if not shotgun.slugs[0] else 'Live')
         time.sleep(1)
         print()
     if itemNumber == 5:
-        target.handcuffed = True
+        if not target.handcuffed_this_round and not target.handcuffed:
+            target.handcuffed = True
+            return True
+        return False
+    return True
 
 def get_random_slugs(maxSlugs=8):
     live_slugs = random.randint(1, int(maxSlugs/2))
@@ -34,6 +41,7 @@ def get_random_slugs(maxSlugs=8):
 class Shotgun:
     current_holder = None
     current_opponent = None
+    handcuffed_this_round = False
     dmg = 1
     slugs = []
 
@@ -68,7 +76,9 @@ class Shotgun:
     def switch_holder(self):
         if self.current_opponent.handcuffed:
             self.current_opponent.handcuffed = False
+            self.current_opponent.handcuffed_this_round = True
             return
+        self.current_opponent.handcuffed_this_round = False
         temp_opponent = self.current_holder
         self.current_holder = self.current_opponent
         self.current_opponent = temp_opponent
@@ -78,16 +88,16 @@ class Shotgun:
         used_slug = self.slugs[0]
         if used_slug:  # Slug was live
             self.current_holder.change_hp(-self.dmg)
-            self.dmg = 1
             self.switch_holder()
         self.unload_slug()
+        self.dmg = 1
         return used_slug
 
     def shoot_opponent(self):
         used_slug = self.slugs[0]
-        if used_slug:
+        if used_slug:  # Slug was live
             self.current_opponent.change_hp(-self.dmg)
-            self.dmg = 1
         self.unload_slug()
+        self.dmg = 1
         self.switch_holder()
         return used_slug

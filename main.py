@@ -57,12 +57,16 @@ while(player1.hp > 0 and player2.hp > 0):
             for i in range(0, len(shotgun.current_holder.inventory)):
                 print('\t', i + 1, ' -- ', items_list[shotgun.current_holder.inventory[i]])
             wat_item = input()
-            print(wat_item)
             if int(wat_item) != 0:
                 inventory_item_index = int(wat_item) - 1
-                print(shotgun.current_holder.inventory[inventory_item_index])
-                cause_effect(shotgun.current_holder, shotgun.current_opponent, shotgun.current_holder.inventory[inventory_item_index], shotgun)
-                shotgun.current_holder.inventory.pop(inventory_item_index)
+                success = cause_effect(shotgun.current_holder, shotgun.current_opponent, shotgun.current_holder.inventory[inventory_item_index], shotgun)
+                if success:
+                    shotgun.current_holder.inventory.pop(inventory_item_index)
+                else:
+                    print()
+                    print('You can\'t use that item right now!')
+                    print()
+                    time.sleep(2)
         else:
             print('What the fuck are you doing?')
     
