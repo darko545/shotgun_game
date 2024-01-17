@@ -54,15 +54,14 @@ def display_inventory(shotgun):
     print('\t 0  --  Go back')
     for i in range(0, len(shotgun.current_holder.inventory)):
         print('\t', i + 1, ' -- ', items_list[shotgun.current_holder.inventory[i]])
-    wat_item = input()
-    if int(wat_item) != 0 and int(wat_item) <= len(shotgun.current_holder.inventory):
-        inventory_item_index = int(wat_item) - 1
+    wat_item = int(input())
+    if wat_item in range(1, len(shotgun.current_holder.inventory)+1):
+        inventory_item_index = wat_item - 1
         success, effect = cause_effect(
             shotgun.current_holder,
             shotgun.current_opponent,
             shotgun.current_holder.inventory[inventory_item_index],
             shotgun,
-        )
         if success:
             shotgun.current_holder.inventory.pop(inventory_item_index)
         else:
@@ -99,7 +98,10 @@ while(player1.hp > 0 and player2.hp > 0):
         print('\n')
 
         print('Current turn: ', shotgun.current_holder.name)
-        print('What do?\n\t 1 -- Shoot opponent\n\t 2 -- Shoot self (shooting self with blank slug skips opponent)\n\t 3 -- Open Inventory')
+        print('What do?\n\t 1 -- Shoot opponent\n\t 2 -- Shoot self (shooting self with blank slug skips opponent)')
+        if len(shotgun.current_holder.inventory) > 0:
+            print('\t 3 -- Open Inventory')
+        
         wat_do = input()
         boom = None
         match wat_do:
@@ -108,7 +110,10 @@ while(player1.hp > 0 and player2.hp > 0):
             case '2':
                 display_boom(shotgun.shoot_self())
             case '3':
-                display_inventory(shotgun)
+                if len(shotgun.current_holder.inventory) > 0:
+                    display_inventory(shotgun)
+                else:
+                    print('What the fuck are you doing?')
             case _:
                 print('What the fuck are you doing?')
         print('\n'*50)
