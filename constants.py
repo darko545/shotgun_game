@@ -54,7 +54,7 @@ cool_win_messages = (
     '\n{winner} is clearly a real winner, folks.',
     '{loser} did not win. In fact, they\'re dead.',
     'You are sick {winner}.. You didn\'t need to use that shotgun, you two could have been friends..',
-    'Two men enters, one man, woman or they leaves. The one that leaves is {winner}',
+    'Two men enter, one man, woman or a they leaves. The one that leaves is {winner}',
     '{loser} could benefit from learning about gun safety, but they\'re dead now anyway. Congrats {winner}',
     'When life gave you lemons, you shot your friend in the face with a shotgun. Congrats {winner}.',
     'On this day {winner} found themself victorious, congratulations - {loser} found themself fuckin dead.',
