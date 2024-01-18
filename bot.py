@@ -30,13 +30,15 @@ def get_player_stats(player, shotgun):
             '🔫{}'.format('🪓' if shotgun.dmg == 2 else '  ') if player == shotgun.current_holder else '',
         ) +
         '\n' +
-        ' '.join('❤️' for _ in range(player.hp)) +
+        '{}'.format(get_hp_display(player)) +
         '\n{}'.format(''.join(
-            '[{} ]'.format(b_item) for b_item in player.get_beautiful_inv()[:4])) +
-        '\n{}'.format(''.join(
-            '[{} ]'.format(b_item) for b_item in player.get_beautiful_inv()[4:])) +
-        '\n-----------------'
+            '[  {}  ]'.format(b_item) for b_item in player.get_beautiful_inv()))
     )
+
+def add_reaction_async(message, emoji):
+    loop = asyncio.get_event_loop()
+    loop.create_task(message.add_reaction(emoji))
+
 
 class GameChannel:
     client = None
@@ -56,7 +58,7 @@ class GameChannel:
         overwrite_everybody.send_messages = False
         overwrite_everybody.add_reactions = False
         overwrite_everybody.read_messages = False
-        overwrite_everybody.view_channel = False
+        overwrite_everybody.view_channel = True
         channel = None
         channel = self.client.get_channel(self.channel_id)
         everyone_role = get_everyone_role(channel.guild.roles)
@@ -84,8 +86,8 @@ class GameChannel:
             await channel.purge()
             await channel.send('Player: ' + player1.mention + ' is waiting to play...')
             message = await channel.send('Do you want to play a game of shotgun with ' + player1.name + '? ('+ player1.name +' can press ❌ to cancel lobby)', silent=True)
-            await message.add_reaction('<:voted:1197236357249114233>')
-            await message.add_reaction('❌')
+            add_reaction_async(message, '<:voted:1197236357249114233>')
+            add_reaction_async(message, '❌')
 
             while (not stop_inner_loop):
                 try:
@@ -111,8 +113,8 @@ class GameChannel:
                             silent=True,
                         )
                         await message.clear_reactions()
-                        await message.add_reaction('<:voted:1197236357249114233>')
-                        await message.add_reaction('❌')
+                        add_reaction_async(message, '<:voted:1197236357249114233>')
+                        add_reaction_async(message, '❌')
                         continue
                     else:
                         self.player_1_userid = player1.id
@@ -134,7 +136,7 @@ class GameChannel:
                 await channel.send('Slugs: ' + beautify_slugs(random_slugs), delete_after=5)
                 time.sleep(4)
                 shotgun.load_slugs(random_slugs)
-                for _ in range(1, 5):
+                for _ in range(1, 4):
                     s_player1.add_item_to_inventory()
                     s_player2.add_item_to_inventory()
 
@@ -142,98 +144,79 @@ class GameChannel:
                     await channel.purge()
                     player1_stats = get_player_stats(s_player1, shotgun)
                     player2_stats = get_player_stats(s_player2, shotgun)
-                    await channel.send(player1_stats)
-                    await channel.send(player2_stats)
+                    active_player_stats = None
+                    if shotgun.current_holder == s_player1:
+                        active_player_stats = await channel.send(player1_stats)
+                        await channel.send(player2_stats)
+                    else:
+                        await channel.send(player1_stats)
+                        active_player_stats = await channel.send(player2_stats)
+
                     message = await channel.send(
                         'Turn: ' + shotgun.current_holder.name + '\n'
                         'Click a reaction below to take your action\n'
                         '🔼 - Shoot your opponent and pass the turn\n'
                         '🔽 - Shoot yourself (opponent\'s turn is skipped if blank shot)'
-                        '{}'.format(
-                            '\n🎒 - Check your inventory' if len(shotgun.current_holder.inventory) > 0 else ''
-                        )
                     )
-                    await message.add_reaction('🔼')
-                    await message.add_reaction('🔽')
-                    if len(shotgun.current_holder.inventory) > 0: await message.add_reaction('🎒')
+                    add_reaction_async(message, '🔼')
+                    add_reaction_async(message, '🔽')
+                    b_inventory = shotgun.current_holder.get_beautiful_inv()
+                    for i in range(0, len(b_inventory)):
+                        add_reaction_async(active_player_stats, b_nums[i+1])
                     break_reactions_loop = False
                     while(not break_reactions_loop):
                         reaction, player = await client.wait_for('reaction_add', check=check, timeout=600)
                         if not player.mention == shotgun.current_holder.name:
                             await channel.send('Wait your turn ' + player.mention, delete_after=10)
                         else:
-                            match reaction.emoji:
-                                case '🔼':
-                                    asyncio.sleep(1)
-                                    await channel.purge()
-                                    async with channel.typing():
-                                        await asyncio.sleep(5)
-                                    current_damage = shotgun.dmg
-                                    current_opponent = shotgun.current_opponent.name
-                                    shot_live = shotgun.shoot_opponent()
-                                    if shot_live:
-                                        await channel.send('BOOM!')
-                                        await channel.send(current_opponent + ' -' + '{}'.format(current_damage) + 'hp')
-                                    else:
-                                        await channel.send('...click')
-                                    time.sleep(3)
+                            if reaction.emoji in [v for k, v in b_nums.values()]:
+                                success, effect = cause_effect(
+                                    shotgun.current_holder.inventory[nums_b[reaction.emoji]-1],
+                                    shotgun
+                                )
+                                if success:
+                                    if effect:
+                                        await channel.send(effect)
+                                        time.sleep(5)
+                                    shotgun.current_holder.inventory.pop(nums_b[reaction.emoji]-1)
+                                    break_reactions_loop = True
                                     break
-                                case '🔽':
-                                    asyncio.sleep(1)
-                                    await channel.purge()
-                                    async with channel.typing():
-                                        await asyncio.sleep(5)
-                                    current_damage = shotgun.dmg
-                                    current_holder = shotgun.current_holder.name
-                                    shot_live = shotgun.shoot_self()
-                                    if shot_live:
-                                        await channel.send('BOOM!')
-                                        await channel.send(current_holder + ' -' + '{}'.format(current_damage) + 'hp')
-                                    else:
-                                        await channel.send('...click')
-                                    time.sleep(3)
-                                    break
-                                case '🎒':
-                                    await channel.purge()
-                                    await channel.send('Pick an item to use: ')
-                                    b_inventory = shotgun.current_holder.get_beautiful_inv()
-                                    inv_first_line = await channel.send(
-                                        ''.join('[  {}  ]'.format(b_item) for b_item in b_inventory[:4]))
-                                    for i in range(0, len(b_inventory[:4])):
-                                        await inv_first_line.add_reaction(b_nums[i+1])
-                                    inv_second_line = None
-                                    if len(b_inventory) > 4:
-                                        inv_second_line = await channel.send(
-                                            ''.join('[  {}  ]'.format(b_item) for b_item in b_inventory[4:]))
-                                        for i in range(1, len(b_inventory[4:])+1):
-                                            await inv_second_line.add_reaction(b_nums[i+4])
-                                    return_message = await channel.send('Return?')
-                                    await return_message.add_reaction('🔙')
-                                    while(True):
-                                        reaction, inv_player = await client.wait_for('reaction_add', check=check, timeout=600)
-                                        if player.id != inv_player.id:
-                                            await channel.send('Wait your turn ' + player.mention, delete_after=10)
+                                else:
+                                    await channel.send('Can\'t use that item right now...', delete_after=3)
+                            else:
+                                match reaction.emoji:
+                                    case '🔼':
+                                        await asyncio.sleep(1)
+                                        await channel.purge()
+                                        async with channel.typing():
+                                            await asyncio.sleep(5)
+                                        current_damage = shotgun.dmg
+                                        current_opponent = shotgun.current_opponent.name
+                                        shot_live = shotgun.shoot_opponent()
+                                        if shot_live:
+                                            await channel.send('BOOM!')
+                                            await channel.send(current_opponent + ' -' + '{}'.format(current_damage) + 'hp')
                                         else:
-                                            if reaction.emoji == '🔙':
-                                                break_reactions_loop = True
-                                                break
-                                            else:
-                                                success, effect = cause_effect(
-                                                    shotgun.current_holder.inventory[nums_b[reaction.emoji]-1],
-                                                    shotgun
-                                                )
-                                                if success:
-                                                    if effect:
-                                                        await channel.send(effect)
-                                                        time.sleep(5)
-                                                    shotgun.current_holder.inventory.pop(nums_b[reaction.emoji]-1)
-                                                    break_reactions_loop = True
-                                                    break
-                                                else:
-                                                    await channel.send('Can\'t use that item right now...', delete_after=3)
-                                    continue
-                                case _:
-                                    continue
+                                            await channel.send('...click')
+                                        time.sleep(3)
+                                        break
+                                    case '🔽':
+                                        await asyncio.sleep(1)
+                                        await channel.purge()
+                                        async with channel.typing():
+                                            await asyncio.sleep(5)
+                                        current_damage = shotgun.dmg
+                                        current_holder = shotgun.current_holder.name
+                                        shot_live = shotgun.shoot_self()
+                                        if shot_live:
+                                            await channel.send('BOOM!')
+                                            await channel.send(current_holder + ' -' + '{}'.format(current_damage) + 'hp')
+                                        else:
+                                            await channel.send('...click')
+                                        time.sleep(3)
+                                        break
+                                    case _:
+                                        continue
         except asyncio.TimeoutError:
             await channel.purge()
             await self.init_game_channel()
