@@ -172,7 +172,7 @@ class GameChannel:
                                     shot_live = shotgun.shoot_opponent()
                                     if shot_live:
                                         await channel.send('BOOM!')
-                                        await channel.send(shotgun.current_opponent.name + ' -' + current_damage + 'hp')
+                                        await channel.send(shotgun.current_opponent.name + ' -' + '{}'.format(current_damage) + 'hp')
                                     else:
                                         await channel.send('...click')
                                     time.sleep(3)
@@ -186,7 +186,7 @@ class GameChannel:
                                     shot_live = shotgun.shoot_self()
                                     if shot_live:
                                         await channel.send('BOOM!')
-                                        await channel.send(shotgun.current_holder.name + ' -' + current_damage + 'hp')
+                                        await channel.send(shotgun.current_holder.name + ' -' + '{}'.format(current_damage) + 'hp')
                                     else:
                                         await channel.send('...click')
                                     time.sleep(3)
