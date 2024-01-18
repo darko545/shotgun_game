@@ -63,7 +63,7 @@ class GameChannel:
         channel = self.client.get_channel(self.channel_id)
         everyone_role = get_everyone_role(channel.guild.roles)
         await channel.set_permissions(everyone_role, overwrite=overwrite_everybody)
-        await channel.set_permissions(client.user, send_messages=True, add_reactions=True)
+        await channel.set_permissions(self.client.user, send_messages=True, add_reactions=True)
         await channel.purge()
 
     async def setup_game_channel(self, player1):
@@ -79,7 +79,7 @@ class GameChannel:
         channel = self.client.get_channel(self.channel_id)
         everyone_role = get_everyone_role(channel.guild.roles)
         await channel.set_permissions(everyone_role, overwrite=overwrite_everybody)
-        await channel.set_permissions(client.user, send_messages=True, add_reactions=True)
+        await channel.set_permissions(self.client.user, send_messages=True, add_reactions=True)
         stop_inner_loop = False
         stop_outer_loop = False
         while(not stop_outer_loop and channel):
@@ -91,7 +91,7 @@ class GameChannel:
 
             while (not stop_inner_loop):
                 try:
-                    reaction, player2 = await client.wait_for('reaction_add', check=check, timeout=600)
+                    reaction, player2 = await self.client.wait_for('reaction_add', check=check, timeout=600)
                 except asyncio.TimeoutError:
                     await channel.purge()
                     stop_inner_loop = True
@@ -115,6 +115,8 @@ class GameChannel:
                         await message.clear_reactions()
                         add_reaction_async(message, '<:voted:1197236357249114233>')
                         add_reaction_async(message, '❌')
+                        continue
+                    elif player2.id == self.client.id:
                         continue
                     else:
                         self.player_1_userid = player1.id
@@ -165,11 +167,13 @@ class GameChannel:
                         add_reaction_async(active_player_stats, b_nums[i+1])
                     break_reactions_loop = False
                     while(not break_reactions_loop):
-                        reaction, player = await client.wait_for('reaction_add', check=check, timeout=600)
+                        reaction, player = await self.client.wait_for('reaction_add', check=check, timeout=600)
                         if not player.mention == shotgun.current_holder.name:
                             await channel.send('Wait your turn ' + player.mention, delete_after=10)
+                        elif player.id == self.client.id:
+                            continue
                         else:
-                            if reaction.emoji in [v for k, v in b_nums.values()]:
+                            if reaction.emoji in [v for (k, v) in b_nums.values()]:
                                 success, effect = cause_effect(
                                     shotgun.current_holder.inventory[nums_b[reaction.emoji]-1],
                                     shotgun
