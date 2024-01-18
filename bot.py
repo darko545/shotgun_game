@@ -132,7 +132,7 @@ class GameChannel:
             while(s_player1.hp > 0 and s_player2.hp > 0):
                 random_slugs = get_random_slugs()
                 await channel.send('Slugs: ' + beautify_slugs(random_slugs), delete_after=5)
-                asyncio.sleep(6)
+                time.sleep(4)
                 shotgun.load_slugs(random_slugs)
                 for _ in range(1, 5):
                     s_player1.add_item_to_inventory()
@@ -175,7 +175,7 @@ class GameChannel:
                                         await channel.send(shotgun.current_opponent.name + ' -' + current_damage + 'hp')
                                     else:
                                         await channel.send('...click')
-                                    asyncio.sleep(3)
+                                    time.sleep(3)
                                     break
                                 case '🔽':
                                     asyncio.sleep(1)
@@ -189,7 +189,7 @@ class GameChannel:
                                         await channel.send(shotgun.current_holder.name + ' -' + current_damage + 'hp')
                                     else:
                                         await channel.send('...click')
-                                    asyncio.sleep(3)
+                                    time.sleep(3)
                                     break
                                 case '🎒':
                                     await channel.purge()
@@ -223,7 +223,7 @@ class GameChannel:
                                                 if success:
                                                     if effect:
                                                         await channel.send(effect)
-                                                        asyncio.sleep(5)
+                                                        time.sleep(5)
                                                     shotgun.current_holder.inventory.pop(nums_b[reaction.emoji]-1)
                                                     break_reactions_loop = True
                                                     break
@@ -244,7 +244,7 @@ class GameChannel:
             else:
                 loser = player
         await channel.send(win_message.format(winner=winner.name, loser=loser.name))
-        asyncio.sleep(10)
+        time.sleep(10)
         await channel.purge()
         await self.init_game_channel()
 
