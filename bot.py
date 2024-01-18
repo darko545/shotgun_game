@@ -106,7 +106,9 @@ class GameChannel:
                     await self.init_game_channel()
                     continue
                 if str(reaction.emoji) == '<:voted:1197236357249114233>':
-                    if player1 == player2:
+                    if player2.id == client.user.id:
+                        continue
+                    elif False: # player1 == player2:
                         await channel.send(
                             'Sorry ' + player1.mention + ', you can\'t play by yourself..',
                             delete_after=3,
@@ -115,8 +117,6 @@ class GameChannel:
                         await message.clear_reactions()
                         add_reaction_async(message, '<:voted:1197236357249114233>')
                         add_reaction_async(message, '❌')
-                        continue
-                    elif player2.id == client.user.id:
                         continue
                     else:
                         self.player_1_userid = player1.id
@@ -168,12 +168,12 @@ class GameChannel:
                     break_reactions_loop = False
                     while(not break_reactions_loop):
                         reaction, player = await self.client.wait_for('reaction_add', check=check, timeout=600)
-                        if not player.mention == shotgun.current_holder.name:
-                            await channel.send('Wait your turn ' + player.mention, delete_after=10)
-                        elif player.id == client.user.id:
+                        if player.id == client.user.id:
                             continue
+                        elif not player.mention == shotgun.current_holder.name:
+                            await channel.send('Wait your turn ' + player.mention, delete_after=10)
                         else:
-                            if reaction.emoji in [v for (k, v) in b_nums.values()]:
+                            if reaction.emoji in [kv_pair[1] for kv_pair in b_nums.values()]:
                                 success, effect = cause_effect(
                                     shotgun.current_holder.inventory[nums_b[reaction.emoji]-1],
                                     shotgun
