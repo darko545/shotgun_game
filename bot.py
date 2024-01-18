@@ -8,7 +8,6 @@ from Player import Player
 from Shotgun import Shotgun, beautify_slugs, cause_effect, get_random_slugs
 from constants import b_nums, nums_b, cool_win_messages
 
-lock = asyncio.Lock()
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -59,12 +58,11 @@ class GameChannel:
         overwrite_everybody.read_messages = False
         overwrite_everybody.view_channel = False
         channel = None
-        async with lock:
-            channel = self.client.get_channel(self.channel_id)
-            everyone_role = get_everyone_role(channel.guild.roles)
-            await channel.set_permissions(everyone_role, overwrite=overwrite_everybody)
-            await channel.set_permissions(client.user, send_messages=True, add_reactions=True)
-            await channel.purge()
+        channel = self.client.get_channel(self.channel_id)
+        everyone_role = get_everyone_role(channel.guild.roles)
+        await channel.set_permissions(everyone_role, overwrite=overwrite_everybody)
+        await channel.set_permissions(client.user, send_messages=True, add_reactions=True)
+        await channel.purge()
 
     async def setup_game_channel(self, player1):
         def check(reaction, user):
@@ -174,7 +172,7 @@ class GameChannel:
                                     shot_live = shotgun.shoot_opponent()
                                     if shot_live:
                                         await channel.send('BOOM!')
-                                        await channel.send(shotgun.current_opponent.mention + ' -' + current_damage + 'hp')
+                                        await channel.send(shotgun.current_opponent.name + ' -' + current_damage + 'hp')
                                     else:
                                         await channel.send('...click')
                                     asyncio.sleep(3)
@@ -188,7 +186,7 @@ class GameChannel:
                                     shot_live = shotgun.shoot_self()
                                     if shot_live:
                                         await channel.send('BOOM!')
-                                        await channel.send(shotgun.current_holder.mention + ' -' + current_damage + 'hp')
+                                        await channel.send(shotgun.current_holder.name + ' -' + current_damage + 'hp')
                                     else:
                                         await channel.send('...click')
                                     asyncio.sleep(3)
