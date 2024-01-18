@@ -123,7 +123,7 @@ class GameChannel:
         def check(reaction, user):
             return reaction.message.channel.id == self.channel_id
         try:
-            s_player1 = Player(name=player1.mention, hp=1)
+            s_player1 = Player(name=player1.mention)
             s_player2 = Player(name=player2.mention, hp=s_player1.hp)
             shotgun = Shotgun(s_player1, s_player2)
             await channel.purge()
@@ -176,7 +176,7 @@ class GameChannel:
                                     for _ in range(3):
                                         await channel.send('...')
                                         time.sleep(1.4)
-                                    await channel.send('BOOM!' if shotgun.shoot_opponent() else '...click')
+                                    await channel.send('BOOM!' if shotgun.shoot_self() else '...click')
                                     time.sleep(3)
                                     break
                                 case '🎒':
