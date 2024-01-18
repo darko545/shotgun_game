@@ -3,10 +3,10 @@ import random
 from constants import b_slugs
 
 
-def cause_effect(user, target, itemNumber, shotgun):
+def cause_effect(itemNumber, shotgun):
     match itemNumber:
         case 1:  # cigarrette
-            user.change_hp(1)
+            shotgun.current_holder.change_hp(1)
         case 2:  # axe
             if shotgun.dmg == 1:
                 shotgun.increase_dmg()
@@ -18,8 +18,8 @@ def cause_effect(user, target, itemNumber, shotgun):
         case 4:  # lens
             return True, 'You check the chamber, the next slug is: ' + (b_slugs[0] if not shotgun.slugs[0] else b_slugs[1])
         case 5:  # cuffs
-            if not target.handcuffed_this_round and not target.handcuffed:
-                target.handcuffed = True
+            if not shotgun.current_opponent.handcuffed_this_round and not shotgun.current_opponent.handcuffed:
+                shotgun.current_opponent.handcuffed = True
                 return True, None
             return False, None
         case _:

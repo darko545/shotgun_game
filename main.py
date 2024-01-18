@@ -58,10 +58,9 @@ def display_inventory(shotgun):
     if wat_item in range(1, len(shotgun.current_holder.inventory)+1):
         inventory_item_index = wat_item - 1
         success, effect = cause_effect(
-            shotgun.current_holder,
-            shotgun.current_opponent,
             shotgun.current_holder.inventory[inventory_item_index],
             shotgun,
+        )
         if success:
             shotgun.current_holder.inventory.pop(inventory_item_index)
         else:
