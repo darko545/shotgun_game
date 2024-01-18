@@ -135,7 +135,7 @@ class GameChannel:
             await channel.purge()
             while(s_player1.hp > 0 and s_player2.hp > 0):
                 random_slugs = get_random_slugs()
-                await channel.send('Slugs: ' + beautify_slugs(random_slugs), delete_after=5)
+                await channel.send('Slugs: ' + beautify_slugs(random_slugs), delete_after=5, silent=True)
                 time.sleep(4)
                 shotgun.load_slugs(random_slugs)
                 for _ in range(1, 4):
@@ -148,17 +148,18 @@ class GameChannel:
                     player2_stats = get_player_stats(s_player2, shotgun)
                     active_player_stats = None
                     if shotgun.current_holder == s_player1:
-                        active_player_stats = await channel.send(player1_stats)
-                        await channel.send(player2_stats)
+                        active_player_stats = await channel.send(player1_stats, silent=True)
+                        await channel.send(player2_stats, silent=True)
                     else:
-                        await channel.send(player1_stats)
-                        active_player_stats = await channel.send(player2_stats)
+                        await channel.send(player1_stats, silent=True)
+                        active_player_stats = await channel.send(player2_stats, silent=True)
 
                     message = await channel.send(
                         'Turn: ' + shotgun.current_holder.name + '\n'
                         'Click a reaction below to take your action\n'
                         '🔼 - Shoot your opponent and pass the turn\n'
-                        '🔽 - Shoot yourself (opponent\'s turn is skipped if blank shot)'
+                        '🔽 - Shoot yourself (opponent\'s turn is skipped if blank shot)',
+                        silent=True
                     )
                     add_reaction_async(message, '🔼')
                     add_reaction_async(message, '🔽')
@@ -171,7 +172,7 @@ class GameChannel:
                         if player.id == client.user.id:
                             continue
                         elif not player.mention == shotgun.current_holder.name:
-                            await channel.send('Wait your turn ' + player.mention, delete_after=10)
+                            await channel.send('Wait your turn ' + player.mention, delete_after=10, silent=True)
                         else:
                             if reaction.emoji in [kv_pair for kv_pair in b_nums.values()]:
                                 success, effect = cause_effect(
@@ -180,13 +181,13 @@ class GameChannel:
                                 )
                                 if success:
                                     if effect:
-                                        await channel.send(effect)
+                                        await channel.send(effect, silent=True)
                                         time.sleep(5)
                                     shotgun.current_holder.inventory.pop(nums_b[reaction.emoji]-1)
                                     break_reactions_loop = True
                                     break
                                 else:
-                                    await channel.send('Can\'t use that item right now...', delete_after=3)
+                                    await channel.send('Can\'t use that item right now...', delete_after=3, silent=True)
                             else:
                                 match reaction.emoji:
                                     case '🔼':
@@ -198,10 +199,9 @@ class GameChannel:
                                         current_opponent = shotgun.current_opponent.name
                                         shot_live = shotgun.shoot_opponent()
                                         if shot_live:
-                                            await channel.send('BOOM!')
-                                            await channel.send(current_opponent + ' -' + '{}'.format(current_damage) + 'hp')
+                                            await channel.send('BOOM! ' + current_opponent + ' -' + '{}'.format(current_damage) + 'hp', silent=True)
                                         else:
-                                            await channel.send('...click')
+                                            await channel.send('...click', silent=True)
                                         time.sleep(3)
                                         break
                                     case '🔽':
@@ -213,10 +213,9 @@ class GameChannel:
                                         current_holder = shotgun.current_holder.name
                                         shot_live = shotgun.shoot_self()
                                         if shot_live:
-                                            await channel.send('BOOM!')
-                                            await channel.send(current_holder + ' -' + '{}'.format(current_damage) + 'hp')
+                                            await channel.send('BOOM! ' + current_holder + ' -' + '{}'.format(current_damage) + 'hp', silent=True)
                                         else:
-                                            await channel.send('...click')
+                                            await channel.send('...click', silent=True)
                                         time.sleep(3)
                                         break
                                     case _:
@@ -232,7 +231,7 @@ class GameChannel:
                 winner = player
             else:
                 loser = player
-        await channel.send(win_message.format(winner=winner.name, loser=loser.name))
+        await channel.send(win_message.format(winner=winner.name, loser=loser.name), silent=True)
         time.sleep(10)
         await channel.purge()
         await self.init_game_channel()
@@ -261,6 +260,7 @@ class ShotgunGameBot(discord.Client):
             loop.create_task(ch.init_game_channel())
 
     async def on_message(self, message):
+        print(message.content)
         if message.content.startswith('!shotgun'):
             channel = message.channel
             for game_channel in game_channels:
@@ -271,9 +271,16 @@ class ShotgunGameBot(discord.Client):
                         loop = asyncio.get_event_loop()
                         loop.create_task(game_channel.setup_game_channel(message.author))
                         await channel.send(
-                            'We have a room waiting for you '+message.author.mention+': ' + g_channel.mention, delete_after=10)
+                            'We have a room waiting for you '+message.author.mention+': ' + g_channel.mention,
+                            delete_after=10,
+                            silent=True
+                        )
                         return
-            await channel.send('No available channels, sorry ' + message.author.mention + '!', delete_after=10)
+            await channel.send(
+                'No available channels, sorry ' + message.author.mention + '!',
+                delete_after=10,
+                silent=True
+            )
         
 
 client = ShotgunGameBot(intents=intents)
