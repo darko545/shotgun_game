@@ -169,10 +169,11 @@ class GameChannel:
                                     async with channel.typing():
                                         await asyncio.sleep(5)
                                     current_damage = shotgun.dmg
+                                    current_opponent = shotgun.current_opponent.name
                                     shot_live = shotgun.shoot_opponent()
                                     if shot_live:
                                         await channel.send('BOOM!')
-                                        await channel.send(shotgun.current_opponent.name + ' -' + '{}'.format(current_damage) + 'hp')
+                                        await channel.send(current_opponent + ' -' + '{}'.format(current_damage) + 'hp')
                                     else:
                                         await channel.send('...click')
                                     time.sleep(3)
@@ -183,10 +184,11 @@ class GameChannel:
                                     async with channel.typing():
                                         await asyncio.sleep(5)
                                     current_damage = shotgun.dmg
+                                    current_holder = shotgun.current_holder.name
                                     shot_live = shotgun.shoot_self()
                                     if shot_live:
                                         await channel.send('BOOM!')
-                                        await channel.send(shotgun.current_holder.name + ' -' + '{}'.format(current_damage) + 'hp')
+                                        await channel.send(current_holder + ' -' + '{}'.format(current_damage) + 'hp')
                                     else:
                                         await channel.send('...click')
                                     time.sleep(3)
