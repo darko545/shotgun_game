@@ -6,7 +6,7 @@ import discord
 from discord_token import TOKEN
 from Player import Player
 from Shotgun import Shotgun, beautify_slugs, cause_effect, get_random_slugs
-from constants import b_nums, nums_b, cool_win_messages
+from constants import b_nums, nums_b, cool_win_messages, items_list, items_description
 
 
 intents = discord.Intents.default()
@@ -138,7 +138,7 @@ class GameChannel:
                 await channel.send('Slugs: ' + beautify_slugs(random_slugs), delete_after=5, silent=True)
                 time.sleep(4)
                 shotgun.load_slugs(random_slugs)
-                for _ in range(1, 4):
+                for _ in range(0, random.randint(1, 3)):
                     s_player1.add_item_to_inventory()
                     s_player2.add_item_to_inventory()
 
@@ -156,6 +156,8 @@ class GameChannel:
 
                     message = await channel.send(
                         'Turn: ' + shotgun.current_holder.name + '\n'
+                        'Click a reaction under your item to use it.\n'
+                        ''.join('{}: {}\n'.format(items_list[i], items_description[i]) for i in range(1, len(items_list) + 1))
                         'Click a reaction below to take your action\n'
                         '🔼 - Shoot your opponent and pass the turn\n'
                         '🔽 - Shoot yourself (opponent\'s turn is skipped if blank shot)',
