@@ -43,7 +43,6 @@ class Player:
 
     def change_hp(self, diff):
         if self.dead:
-            print('Already dead.')
             return
         if self.hp + diff > self.max_hp: return
         self.hp += diff

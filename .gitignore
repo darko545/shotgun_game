@@ -1,2 +1,4 @@
 /env/
 *.pyc
+/discord_token.py
+discord_token.py

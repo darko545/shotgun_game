@@ -1,0 +1,1 @@
+TOKEN = '' # Paste your token, lol

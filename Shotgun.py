@@ -1,39 +1,30 @@
 import random
-import time
 
 from constants import b_slugs
 
 
-def cause_effect(user, target, itemNumber, shotgun):
+def cause_effect(itemNumber, shotgun):
     match itemNumber:
         case 1:  # cigarrette
-            user.change_hp(1)
+            shotgun.current_holder.change_hp(1)
         case 2:  # axe
             if shotgun.dmg == 1:
                 shotgun.increase_dmg()
-                return True
+                return True, None
             else:
-                return False
+                return False, None
         case 3:  # beer
-            print()
-            time.sleep(1)
-            print('You empty the chamber, the slug was: ', b_slugs[0] if not shotgun.unload_slug() else b_slugs[1])
-            time.sleep(4)
-            print()
+            return True, 'You empty the chamber, the slug was: ' + (b_slugs[0] if not shotgun.unload_slug() else b_slugs[1])
         case 4:  # lens
-            print()
-            time.sleep(1)
-            print('You check the chamber, the next slug is: ', b_slugs[0] if not shotgun.slugs[0] else b_slugs[1])
-            time.sleep(4)
-            print()
+            return True, 'You check the chamber, the next slug is: ' + (b_slugs[0] if not shotgun.slugs[0] else b_slugs[1])
         case 5:  # cuffs
-            if not target.handcuffed_this_round and not target.handcuffed:
-                target.handcuffed = True
-                return True
-            return False
+            if not shotgun.current_opponent.handcuffed_this_round and not shotgun.current_opponent.handcuffed:
+                shotgun.current_opponent.handcuffed = True
+                return True, None
+            return False, None
         case _:
-            return False
-    return True
+            return False, None
+    return True, None
 
 def get_random_slugs(maxSlugs=8):
     live_slugs = random.randint(1, int(maxSlugs/2))
