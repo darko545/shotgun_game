@@ -157,7 +157,7 @@ class GameChannel:
                     message = await channel.send(
                         'Turn: ' + shotgun.current_holder.name + '\n'
                         'Click a reaction under your item to use it.\n'
-                        ''.join('{}: {}\n'.format(items_list[i], items_description[i]) for i in range(1, len(items_list) + 1))
+                        ''.join('{}: {}\n'.format(items_list[i], items_description[i]) for i in range(1, len(items_list) + 1)) +
                         'Click a reaction below to take your action\n'
                         '🔼 - Shoot your opponent and pass the turn\n'
                         '🔽 - Shoot yourself (opponent\'s turn is skipped if blank shot)',
