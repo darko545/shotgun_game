@@ -1,17 +1,17 @@
 items_list = {
-    1: '🚬 cigarrette',
-    2: '🪓 axe',
-    3: '🍺 beer',
-    4: '🔎 lens',
-    5: '🔗 cuffs',
+    1: '🚬',
+    2: '🪓',
+    3: '🍺',
+    4: '🔎',
+    5: '🔗',
 }
 
 items_description = {
-    1: 'Replenish 1hp',
-    2: 'Increase damage to 2',
-    3: 'Unchamber the next slug',
-    4: 'Check the chamber to see if the slug is live or fake',
-    5: 'Cuff your opponent, preventing their turn once',
+    1: 'Heal 1',
+    2: 'Damage +1',
+    3: 'Unload 1 slug',
+    4: 'Check chamber',
+    5: 'Skip opponent\'s turn',
 }
 
 b_slugs = {
