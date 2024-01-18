@@ -116,7 +116,7 @@ class GameChannel:
                         add_reaction_async(message, '<:voted:1197236357249114233>')
                         add_reaction_async(message, '❌')
                         continue
-                    elif player2.id == self.client.id:
+                    elif player2.id == client.id:
                         continue
                     else:
                         self.player_1_userid = player1.id
@@ -170,7 +170,7 @@ class GameChannel:
                         reaction, player = await self.client.wait_for('reaction_add', check=check, timeout=600)
                         if not player.mention == shotgun.current_holder.name:
                             await channel.send('Wait your turn ' + player.mention, delete_after=10)
-                        elif player.id == self.client.id:
+                        elif player.id == client.id:
                             continue
                         else:
                             if reaction.emoji in [v for (k, v) in b_nums.values()]:
