@@ -108,7 +108,7 @@ class GameChannel:
                 if str(reaction.emoji) == '<:voted:1197236357249114233>':
                     if player2.id == client.user.id:
                         continue
-                    elif False: # player1 == player2:
+                    elif player1 == player2:
                         await channel.send(
                             'Sorry ' + player1.mention + ', you can\'t play by yourself..',
                             delete_after=3,
@@ -173,7 +173,7 @@ class GameChannel:
                         elif not player.mention == shotgun.current_holder.name:
                             await channel.send('Wait your turn ' + player.mention, delete_after=10)
                         else:
-                            if reaction.emoji in [kv_pair[1] for kv_pair in b_nums.values()]:
+                            if reaction.emoji in [kv_pair for kv_pair in b_nums.values()]:
                                 success, effect = cause_effect(
                                     shotgun.current_holder.inventory[nums_b[reaction.emoji]-1],
                                     shotgun
